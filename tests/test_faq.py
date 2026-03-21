@@ -14,14 +14,17 @@ FAQ_DATA = [
 ]
 
 
+import allure
+
 class TestFAQ:
 
+    @allure.title("Отображение ответа в FAQ при клике на вопрос")
     @pytest.mark.parametrize('index, expected_answer', FAQ_DATA)
     def test_faq_answer_visible_on_click(self, driver, index, expected_answer):
         page = MainPage(driver)
-        page.open()
-        page.accept_cookies()
+        page.open_page()
 
+        page.accept_cookies()
         page.scroll_to_faq()
         page.click_faq_question(index)
 

@@ -17,8 +17,11 @@ ORDER_DATA = [
 ]
 
 
+import allure
+
 class TestOrderScooter:
 
+    @allure.title("Оформление заказа самоката")
     @pytest.mark.parametrize("button", [
         MainPage.ORDER_BUTTON_TOP,
         MainPage.ORDER_BUTTON_BOTTOM
@@ -26,13 +29,10 @@ class TestOrderScooter:
     @pytest.mark.parametrize("data", ORDER_DATA)
     def test_order_success(self, driver, button, data):
         page = MainPage(driver)
-        page.open()
+        page.open_page()
 
         page.accept_cookies()
-
         page.click_order_button(button)
-
-        page.accept_cookies()
 
         order = OrderPage(driver)
 
@@ -45,23 +45,23 @@ class TestOrderScooter:
 
         assert order.is_success_visible()
 
+
+    @allure.title("Переход по логотипу Самоката")
     def test_scooter_logo(self, driver):
         page = MainPage(driver)
-        page.open()
+        page.open_page()
 
         page.click_scooter_logo()
 
         assert page.is_main_page()
 
+
+    @allure.title("Переход по логотипу Яндекса")
     def test_yandex_logo(self, driver):
         page = MainPage(driver)
-        page.open()
+        page.open_page()
 
         page.click_yandex_logo()
+        page.switch_to_new_tab()
 
-        page.wait.until(lambda d: len(d.window_handles) > 1)
-        driver.switch_to.window(driver.window_handles[-1])
-
-        page.wait.until(lambda d: d.current_url != "about:blank")
-
-        assert "yandex" in driver.current_url or "dzen" in driver.current_url
+        assert "dzen.ru" in driver.current_url

@@ -1,9 +1,9 @@
+import allure
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from .BasePage import BasePage
 
 
-class MainPage:
+class MainPage(BasePage):
     URL = 'https://qa-scooter.praktikum-services.ru/'
 
     ORDER_BUTTON_TOP = (By.XPATH, "//div[contains(@class,'Header_Nav')]//button[text()='Заказать']")
@@ -15,43 +15,42 @@ class MainPage:
     FAQ_SECTION = (By.CLASS_NAME, 'Home_FAQ__3uVm4')
     COOKIE_BUTTON = (By.ID, "rcc-confirm-button")
 
-    def __init__(self, driver):
-        self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
+    @allure.step("Открыть главную страницу")
+    def open_page(self):
+        self.open(self.URL)
 
-    def open(self):
-        self.driver.get(self.URL)
-
+    @allure.step("Принять cookies")
     def accept_cookies(self):
-        try:
-            self.wait.until(EC.element_to_be_clickable(self.COOKIE_BUTTON)).click()
-        except:
-            pass
+        self.click_if_clickable(self.COOKIE_BUTTON)
 
+    @allure.step("Прокрутка к FAQ")
     def scroll_to_faq(self):
-        faq = self.wait.until(EC.presence_of_element_located(self.FAQ_SECTION))
-        self.driver.execute_script("arguments[0].scrollIntoView();", faq)
+        self.scroll_to(self.FAQ_SECTION)
 
+    @allure.step("Клик по вопросу FAQ {index}")
     def click_faq_question(self, index):
         locator = (By.ID, f'accordion__heading-{index}')
-        self.wait.until(EC.element_to_be_clickable(locator)).click()
+        self.click(locator)
 
+    @allure.step("Получить текст ответа FAQ {index}")
     def get_faq_answer_text(self, index):
         locator = (By.XPATH, f"//div[@id='accordion__panel-{index}']//p")
-        return self.wait.until(EC.visibility_of_element_located(locator)).text
+        return self.get_text(locator)
 
+    @allure.step("Клик по кнопке заказа")
     def click_order_button(self, locator):
-        self.wait.until(EC.element_to_be_clickable(locator)).click()
+        if locator == self.ORDER_BUTTON_BOTTOM:
+            self.scroll_to(locator)
+        self.click(locator)
 
+    @allure.step("Клик по логотипу Scooter")
     def click_scooter_logo(self):
-        self.wait.until(EC.element_to_be_clickable(self.SCOOTER_LOGO)).click()
+        self.click(self.SCOOTER_LOGO)
 
+    @allure.step("Клик по логотипу Yandex")
     def click_yandex_logo(self):
-        self.wait.until(EC.element_to_be_clickable(self.YANDEX_LOGO)).click()
+        self.click(self.YANDEX_LOGO)
 
-    def switch_to_new_tab(self):
-        self.wait.until(lambda d: len(d.window_handles) > 1)
-        self.driver.switch_to.window(self.driver.window_handles[-1])
-
+    @allure.step("Проверка, что открыта главная страница")
     def is_main_page(self):
-        return "praktikum-services" in self.driver.current_url
+        return "praktikum-services" in self.get_current_url()
